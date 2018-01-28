@@ -151,7 +151,7 @@ public class UPC {
         String hub = components[2].trim();
         String store = components[3].trim();
 //        Integer stats = Integer.parseInt(components[2].trim());
-        Long timestamp = Long.parseLong(components[3].trim());
+        Long timestamp = Long.parseLong(components[4].trim());
         IotActionInfo gInfo = new IotActionInfo(scan,upc, hub, store, timestamp);
         c.output(gInfo);
       } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {

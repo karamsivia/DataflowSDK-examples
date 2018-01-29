@@ -52,26 +52,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * This class is the third in a series of four pipelines that tell a story in a 'gaming' domain,
- * following {@link UpcStats} and {@link HourlyHubStats}. Concepts include: processing unbounded
- * data using fixed windows; use of custom timestamps and event-time processing; generation of
- * early/speculative results; using .accumulatingFiredPanes() to do cumulative processing of late-
- * arriving data.
- *
- * <p>This pipeline processes an unbounded stream of 'iot events'. The calculation of the Hub
- * Stats uses fixed windowing based on event time (the time of the iot play event), not
- * processing time (the time that an event is processed by the pipeline). The pipeline calculates
- * the sum of Stats per Hub, for each window. By default, the Hub Stats are calculated using
- * one-hour windows.
- *
- * <p>In contrast-- to demo another windowing option-- the Upc Stats are calculated using a
- * global window, which periodically (every ten minutes) emits cumulative Upc Stat sums.
- *
- * <p>In contrast to the previous pipelines in the series, which used static, finite input data,
- * here we're using an unbounded data source, which lets us provide speculative results, and allows
+ * <p>This pipeline processes an unbounded stream of 'iot events'. This pipeline uses
+ * an unbounded data source, and  provides speculative results, and allows
  * handling of late data, at much lower latency. We can use the early/speculative results to keep a
  * 'StatsBoard' updated in near-realtime. Our handling of late data lets us generate correct
- * results, e.g. for 'Hub prizes'. We're now outputting window results as they're
+ * results. We're now outputting window results as they're
  * calculated, giving us much lower latency than with the previous batch examples.
  *
  * <p>Run {@code injector.Injector} to generate pubsub data for this pipeline.  The Injector
@@ -191,7 +176,7 @@ public class StatsBoard extends HourlyHubStats {
 
   /**
    * Create a map of information that describes how to write pipeline output to BigQuery. This map
-   * is used to write UPC Stats sums.
+   * is used to write UPC Stats .
    */
   protected static Map<String, WriteToBigQuery.FieldInfo<KV<String, Integer>>>
       configureGlobalWindowBigQueryWrite() {

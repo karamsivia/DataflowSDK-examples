@@ -40,12 +40,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * This class is the second in a series of four pipelines that tell a story in a 'gaming'
- * domain, following {@link UPC}. In addition to the concepts introduced in {@link UPC},
- * new concepts include: windowing and element timestamps; use of {@code Filter.by()}.
- *
- * <p>This pipeline processes data collected from gaming events in batch, building on {@link
- * UPC} but using fixed windows. It calculates the sum of Statss per UPC, for each window,
+ * <p>This pipeline processes data collected from iot events in batch, building on {@link
+ * UPC} but using fixed windows. It calculates the Stats per UPC, for each window,
  * optionally allowing specification of two timestamps before and after which data is filtered out.
  * This allows a model where late data collected after the intended analysis window can be included,
  * and any late-arriving data prior to the beginning of the analysis window can be removed as well.

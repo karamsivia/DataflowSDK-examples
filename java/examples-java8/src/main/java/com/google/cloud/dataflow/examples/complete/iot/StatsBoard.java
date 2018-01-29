@@ -70,7 +70,7 @@ import org.joda.time.format.DateTimeFormatter;
  * <p>In contrast to the previous pipelines in the series, which used static, finite input data,
  * here we're using an unbounded data source, which lets us provide speculative results, and allows
  * handling of late data, at much lower latency. We can use the early/speculative results to keep a
- * 'leaderboard' updated in near-realtime. Our handling of late data lets us generate correct
+ * 'StatsBoard' updated in near-realtime. Our handling of late data lets us generate correct
  * results, e.g. for 'Hub prizes'. We're now outputting window results as they're
  * calculated, giving us much lower latency than with the previous batch examples.
  *
@@ -90,7 +90,7 @@ import org.joda.time.format.DateTimeFormatter;
  * <p>The BigQuery dataset you specify must already exist. The PubSub topic you specify should be
  * the same topic to which the Injector is publishing.
  */
-public class LeaderBoard extends HourlyHubStats {
+public class StatsBoard extends HourlyHubStats {
 
   private static final String TIMESTAMP_ATTRIBUTE = "timestamp_ms";
 
@@ -102,7 +102,7 @@ public class LeaderBoard extends HourlyHubStats {
 
 
   /**
-   * Options supported by {@link LeaderBoard}.
+   * Options supported by {@link StatsBoard}.
    */
   interface Options extends HourlyHubStats.Options, ExampleOptions, StreamingOptions {
 
@@ -128,8 +128,8 @@ public class LeaderBoard extends HourlyHubStats {
 
     @Description("Prefix used for the BigQuery table names")
     @Default.String("stats")
-    String getLeaderBoardTableName();
-    void setLeaderBoardTableName(String value);
+    String getStatsBoardTableName();
+    void setStatsBoardTableName(String value);
   }
 
   /**
@@ -233,7 +233,7 @@ public class LeaderBoard extends HourlyHubStats {
             new WriteWindowedToBigQuery<KV<String, Integer>>(
                 options.as(GcpOptions.class).getProject(),
                 options.getDataset(),
-                options.getLeaderBoardTableName() + "_Hub",
+                options.getStatsBoardTableName() + "_Hub",
                 configureWindowedTableWrite()));
     iotEvents
         .apply(
@@ -245,7 +245,7 @@ public class LeaderBoard extends HourlyHubStats {
             new WriteToBigQuery<KV<String, Integer>>(
                 options.as(GcpOptions.class).getProject(),
                 options.getDataset(),
-                options.getLeaderBoardTableName() + "_Upc",
+                options.getStatsBoardTableName() + "_Upc",
                 configureGlobalWindowBigQueryWrite()));
 
     // Run the pipeline and wait for the pipeline to finish; capture cancellation requests from the
@@ -272,7 +272,7 @@ public class LeaderBoard extends HourlyHubStats {
 
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<IotActionInfo> infos) {
-      return infos.apply("LeaderboardHubFixedWindows",
+      return infos.apply("StatsBoardHubFixedWindows",
           Window.<IotActionInfo>into(FixedWindows.of(hubWindowDuration))
               // We will get early (speculative) results as well as cumulative
               // processing of late data.
@@ -305,7 +305,7 @@ public class LeaderBoard extends HourlyHubStats {
 
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<IotActionInfo> input) {
-      return input.apply("LeaderboardUpcGlobalWindow",
+      return input.apply("StatsBoardUpcGlobalWindow",
           Window.<IotActionInfo>into(new GlobalWindows())
               // Get periodic results every ten minutes.
               .triggering(Repeatedly.forever(AfterProcessingTime.pastFirstElementInPane()

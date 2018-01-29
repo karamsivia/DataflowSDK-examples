@@ -44,17 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is the first in a series of four pipelines that tell a story in a 'gaming' domain.
- * Concepts: batch processing, reading input from text files, writing output to
- * text files, using standalone DoFns, use of the sum per key transform, and use of
- * Java 8 lambda syntax.
- *
- * <p>In this gaming scenario, many UPCs play, as members of different hubs, over the course of a
- * day, and their actions are logged for processing.  Some of the logged iot events may be late-
- * arriving, if UPCs play on mobile devices and go transiently offline for a period.
- *
- * <p>This pipeline does batch processing of data collected from gaming events. It calculates the
- * sum of Statss per UPC, over an entire batch of gaming data (collected, say, for each day). The
+ * <p>This pipeline does batch processing of data collected from iot events. It calculates the
+ * Stats per UPC (total item count per UPC), over an entire batch of iot data (collected, say, for each day). The
  * batch processing will not include any late data that arrives after the day's cutoff point.
  *
  * <p>To execute this pipeline, specify the pipeline configuration like this:
@@ -131,10 +122,8 @@ public class UPC {
 
   /**
    * Parses the raw Iot event info into IotActionInfo objects. Each event line has the following
-   * format: upcname,hubname,stats,timestamp_in_ms,readable_time
-   * e.g.:
-   * upc2_AsparagusPig,AsparagusPig,10,1445230923951,2015-11-02 09:09:28.224
-   * The human-readable time string is not used here.
+   * format: scan,upcname,hubname,store,timestamp_in_ms
+   * 
    */
   static class ParseEventFn extends DoFn<String, IotActionInfo> {
 
@@ -162,7 +151,7 @@ public class UPC {
   }
 
   /**
-   * A transform to extract key/stats information from IotActionInfo, and sum the statss. The
+   * A transform to extract key/stats information from IotActionInfo, and sum the stats. The
    * constructor arg determines whether 'hub' or 'upc' info is extracted.
    */
   // [START DocInclude_USExtractXform]
